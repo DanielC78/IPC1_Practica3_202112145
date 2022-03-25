@@ -37,11 +37,14 @@ cantidadFantasmas = 0
 cantidadParedes = 0
 
 # TECLAS
-ARRIBA = "W"
-ABAJO = "S"
-DERECHA = "A"
-IZQUIERDA = "D"
-TERMINAR = "F"
+ARRIBA = "w"
+ABAJO = "s"
+DERECHA = "d"
+IZQUIERDA = "a"
+TERMINAR = "f"
+
+# MENSAJES DE ALERTA
+sinAvanzar = "\n¡No se puede avanzar!"
 
 
 # Atributos del jugador
@@ -80,7 +83,7 @@ def fantasmasTablero():
     while(True):
         cantidadFantasmas = int(
             input("Ingrese la cantidad de fantasmas [1-6]: "))
-        if (cantidadFantasmas >= 3) and (cantidadFantasmas <= 6):
+        if (cantidadFantasmas >= 1) and (cantidadFantasmas <= 6):
             break
     premiosTablero()
 
@@ -129,18 +132,76 @@ def posicionPacman():
 
     while(True):
         posicionX = int(input("\nIniciar en la fila: "))
-        posicionY = int(input("Iniciar en la columna: "))
+        posicionY = int(input("Iniciar en la columna: \n"))
         if(tablero[posicionX][posicionY] == "   "):
             tablero[posicionX][posicionY] = PACMAN_ABAJO
             break
-        else: 
+        else:
             print("\nLa posición ya está ocupada\n")
             imprimirTablero()
     imprimirTablero()
+    movimientosPacman()
 
 
 def movimientosPacman():
-    print()
+    global posicionX,posicionY, sinAvanzar, VIDAS, PUNTAJE
+    while((VIDAS > 0) and (PUNTAJE != (cantidadPremios * 10))):
+        mov = input("Movimiento: ")
+        if(mov == ARRIBA):
+            if(tablero[posicionX - 1][posicionY] != BORDES_HORIZONTALES and tablero[posicionX-1][posicionY] != PARED):
+                items(tablero[posicionX - 1][posicionY])
+                tablero[posicionX][posicionY] = "   "
+                tablero[posicionX - 1][posicionY] = PACMAN_ARRIBA
+                posicionX -= 1
+            else:
+                print(sinAvanzar)
+        elif(mov == ABAJO):
+            if(tablero[posicionX + 1][posicionY] != BORDES_HORIZONTALES and tablero[posicionX + 1][posicionY] != PARED):
+                items(tablero[posicionX + 1][posicionY])
+                tablero[posicionX][posicionY] = "   "
+                tablero[posicionX + 1][posicionY] = PACMAN_ABAJO
+                posicionX += 1
+            else:
+                print(sinAvanzar)
+
+        elif(mov == DERECHA):
+            if(tablero[posicionX][posicionY + 1] != BORDES_VERTICALES and tablero[posicionX][posicionY + 1] != PARED):
+                items(tablero[posicionX][posicionY+1])
+                tablero[posicionX][posicionY] = "   "
+                tablero[posicionX][posicionY+1] = PACMAN_DERECHA
+                posicionY += 1
+            else:
+                print(sinAvanzar)
+        elif(mov == IZQUIERDA):
+            if(tablero[posicionX][posicionY - 1] != BORDES_VERTICALES and tablero[posicionX][posicionY - 1] != PARED):
+                items(tablero[posicionX][posicionY+1])
+                tablero[posicionX][posicionY] = "   "
+                tablero[posicionX][posicionY-1] = PACMAN_IZQUIERDA
+                posicionY -= 1
+            else:
+                print(sinAvanzar)
+        elif(mov == TERMINAR):
+            VIDAS = 0
+            break
+        else:
+            print("Debe de ingresar una tecla valida\n")
+
+        imprimirTablero()
+        estadisticasJugador()
+    if(VIDAS == 0):
+        print("Más suerte a la proxima :(")
+    else:
+        print("¡¡¡¡GANASTE!!!!")
+
+# Verificamos si es un fantasma o un premio
+
+
+def items(caracter):
+    global PUNTAJE, VIDAS
+    if(caracter == PREMIO):
+        PUNTAJE += 10
+    elif(caracter == FANTASMA):
+        VIDAS -= 1
 
 
 def opciones():
@@ -149,6 +210,14 @@ def opciones():
         paredesTablero()
     else:
         print("Hasta pronto")
+
+# Mostramos las estadisticas del jugador
+
+
+def estadisticasJugador():
+    print("\nNúmero de vidas: ", VIDAS)
+    print("Punteo: ", PUNTAJE)
+    print("Usuario: ", nombreJugador)
 
 
 def imprimirTablero():
